@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-
+	"github.com/j0ni/pissy/cmd"
 	"mig.ninja/mig/pgp/pinentry"
 )
 
@@ -23,5 +22,5 @@ func maybeBail(err error) {
 }
 
 func main() {
-	fmt.Println("Hello World")
+	cmd.Execute()
 }

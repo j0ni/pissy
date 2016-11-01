@@ -19,38 +19,30 @@ type Record struct {
 	Encrypted   []byte
 	ContentHash []byte
 	TypeName    string
+	Dirty       bool
 }
 
 func (r Record) String() string {
 	return fmt.Sprintf("<Record: %s[title=%s]>", r.Uuid, r.Title)
 }
 
-func (r Record) Save(dir string) (uuid uuid.UUID, err error) {
-	uuid = r.Uuid
-	fileName := fmt.Sprintf("%s/%s", dir, uuid)
+func (r Record) Save(dir string) error {
+	fileName := fmt.Sprintf("%s/%s.pissy", dir, r.Uuid)
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
-	if err = enc.Encode(r); err != nil {
-		return
+	if err := enc.Encode(r); err != nil {
+		return err
 	}
-	err = ioutil.WriteFile(fileName, buf.Bytes(), 0600)
-	return
+	return ioutil.WriteFile(fileName, buf.Bytes(), 0600)
 }
 
-func LoadRecord(dir string, uuid uuid.UUID) (Record, error) {
-	var record Record
-	var buf bytes.Buffer
-	fileName := fmt.Sprintf("%s/%s.gob", dir, uuid)
-	if bs, err := ioutil.ReadFile(fileName); err != nil {
-		return record, err
-		// } else if ... crypto {
-	} else if _, err := buf.Write(bs); err != nil {
-		return record, err
-	} else {
-		dec := gob.NewDecoder(&buf)
-		err = dec.Decode(&record)
+func (record *Record) Load(dir string, fileName string) error {
+	buf, err := loadFile(dir, fmt.Sprintf("%s.pissy", fileName))
+	if err != nil {
+		return err
 	}
-	return record, nil
+	dec := gob.NewDecoder(buf)
+	return dec.Decode(record)
 }
 
 func NewRecord() Record {
@@ -59,5 +51,6 @@ func NewRecord() Record {
 	record.Uuid = uuid.NewV4()
 	record.CreatedAt = now
 	record.UpdatedAt = now
+	record.Dirty = true
 	return record
 }

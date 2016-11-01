@@ -1,6 +1,10 @@
 package db
 
-import uuid "github.com/satori/go.uuid"
+import (
+	"encoding/gob"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 type EncryptionKey struct {
 	Uuid         uuid.UUID
@@ -8,4 +12,13 @@ type EncryptionKey struct {
 	DecryptedKey []byte
 	Iterations   uint64
 	Validation   []byte
+}
+
+func (key *EncryptionKey) Load(dir, fileName string) error {
+	buf, err := loadFile(dir, fileName)
+	if err != nil {
+		return err
+	}
+	dec := gob.NewDecoder(buf)
+	return dec.Decode(key)
 }

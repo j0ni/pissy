@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -14,12 +15,13 @@ func TestSerialization(t *testing.T) {
 	record.Encrypted = []byte("yo hello there")
 	record.Notes = "some notes to test"
 	record.Title = "hokey kokey"
-	record.Save("/tmp/wibble")
+	record.Save("/tmp")
 
-	otherRecord, err := LoadRecord("/tmp/wibble")
+	var otherRecord Record
+	err := otherRecord.Load("/tmp", record.Uuid.String())
 	assert.Nil(err, "LoadRecord returned an error")
 
 	assert.Equal(record.String(), otherRecord.String(), "records were not equal")
 
-	assert.Nil(os.Remove("/tmp/wibble"))
+	assert.Nil(os.Remove(fmt.Sprintf("/tmp/%s.pissy", record.Uuid.String())))
 }
