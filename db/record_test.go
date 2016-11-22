@@ -12,7 +12,7 @@ func TestSerialization(t *testing.T) {
 	assert := assert.New(t)
 
 	record := NewRecord()
-	record.Encrypted = []byte("yo hello there")
+	record.EncryptedValue = []byte("yo hello there")
 	record.Notes = "some notes to test"
 	record.Title = "hokey kokey"
 	record.Save("/tmp")

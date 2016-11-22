@@ -11,15 +11,16 @@ import (
 )
 
 type Record struct {
-	Uuid        uuid.UUID
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Title       string
-	Notes       string
-	Encrypted   []byte
-	ContentHash []byte
-	TypeName    string
-	Dirty       bool
+	Uuid               uuid.UUID
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	Title              string
+	Notes              string
+	EncryptedValue     []byte
+	DecryptedValue     []byte
+	EncryptedValueHMAC []byte
+	TypeName           string
+	Dirty              bool
 }
 
 func (r Record) String() string {
@@ -59,4 +60,12 @@ func NewRecord() Record {
 		UpdatedAt: now,
 		Dirty:     true,
 	}
+}
+
+func (r *Record) Decrypt(key []byte) error {
+	return nil
+}
+
+func (r *Record) Encrypt(record *Record) error {
+	return nil
 }
