@@ -68,11 +68,12 @@ func stripPadding(text []byte) ([]byte, error) {
 	lastByte := text[len(text)-1]
 	textLen := len(text) - int(lastByte)
 	padding := text[textLen:]
+	// don't do this because
+	// https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2009/july/if-youre-typing-the-letters-a-e-s-into-your-code-youre-doing-it-wrong/
+	// so is the right thing to do to just silently continue and
+	// generate garbage? I guess so. Useful for debugging so TODO FIXME HOLYSHIT
 	for _, v := range padding {
 		if v != lastByte {
-			// don't say this because
-			// https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2009/july/if-youre-typing-the-letters-a-e-s-into-your-code-youre-doing-it-wrong/
-			// so is the right thing to do to just fail?
 			return nil, errors.New("Padding integrity failure")
 		}
 	}
