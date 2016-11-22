@@ -49,14 +49,14 @@ func TestKeyEncryption(t *testing.T) {
 
 	assert.Nil(key.EncryptedKey)
 	assert.Nil(key.DecryptedKey)
-	assert.Nil(key.Validation)
+	assert.Nil(key.EncryptedKeyHMAC)
 
 	key.GenerateKey()
 
 	assert.NotNil(key.DecryptedKey)
 	assert.Len(key.DecryptedKey, 32)
 	assert.Nil(key.EncryptedKey)
-	assert.Nil(key.Validation)
+	assert.Nil(key.EncryptedKeyHMAC)
 
 	if err := key.EncryptKey(passphrase); err != nil {
 		assert.Fail("EncryptKey returned an error", err.Error())
@@ -64,7 +64,7 @@ func TestKeyEncryption(t *testing.T) {
 
 	assert.NotNil(key.DecryptedKey)
 	assert.NotNil(key.EncryptedKey)
-	assert.NotNil(key.Validation)
+	assert.NotNil(key.EncryptedKeyHMAC)
 
 	expectedKey := key.DecryptedKey
 	key.DecryptedKey = nil
@@ -74,6 +74,6 @@ func TestKeyEncryption(t *testing.T) {
 
 	assert.NotNil(key.DecryptedKey)
 	assert.NotNil(key.EncryptedKey)
-	assert.NotNil(key.Validation)
+	assert.NotNil(key.EncryptedKeyHMAC)
 	assert.EqualValues(expectedKey, key.DecryptedKey)
 }

@@ -17,12 +17,12 @@ import (
 )
 
 type EncryptionKey struct {
-	Uuid         uuid.UUID
-	EncryptedKey []byte
-	DecryptedKey []byte
-	Salt         []byte
-	Iterations   int
-	Validation   []byte
+	Uuid             uuid.UUID
+	EncryptedKey     []byte
+	DecryptedKey     []byte
+	EncryptedKeyHMAC []byte
+	Salt             []byte
+	Iterations       int
 }
 
 const SaltSize = 16
@@ -93,16 +93,16 @@ func secureRandomBytes(size int) []byte {
 	return bs
 }
 
-func (key *EncryptionKey) updateValidationHMAC(macKey []byte) {
+func (key *EncryptionKey) updateEncryptedKeyHMAC(macKey []byte) {
 	mac := hmac.New(sha512.New, macKey)
 	mac.Write(key.EncryptedKey)
-	key.Validation = mac.Sum(nil)
+	key.EncryptedKeyHMAC = mac.Sum(nil)
 }
 
 func (key EncryptionKey) checkValidationHMAC(macKey []byte) bool {
 	mac := hmac.New(sha512.New, macKey)
 	mac.Write(key.EncryptedKey)
-	return hmac.Equal(key.Validation, mac.Sum(nil))
+	return hmac.Equal(key.EncryptedKeyHMAC, mac.Sum(nil))
 }
 
 func (key *EncryptionKey) DecryptKey(passphrase string) error {
@@ -142,18 +142,10 @@ func (key *EncryptionKey) EncryptKey(passphrase string) error {
 	mode.CryptBlocks(ciphertext, padded)
 	key.EncryptedKey = append(iv, ciphertext...)
 	// not sure if it's ok to reuse this key
-	key.updateValidationHMAC(dk)
+	key.updateEncryptedKeyHMAC(dk)
 	return nil
 }
 
 func (key *EncryptionKey) GenerateKey() {
 	key.DecryptedKey = secureRandomBytes(AESKeySize)
-}
-
-func (key EncryptionKey) DecryptRecord(record *Record) error {
-	return nil
-}
-
-func (key EncryptionKey) EncryptRecord(record *Record) error {
-	return nil
 }
