@@ -81,6 +81,11 @@ func loadFile(dir, fileName string) (*bytes.Buffer, error) {
 	return &buf, nil
 }
 
+func saveFile(dir, fileName string, buf bytes.Buffer) error {
+	fullPath := fmt.Sprintf("%s/%s", dir, fileName)
+	return ioutil.WriteFile(fullPath, buf.Bytes(), 0600)
+}
+
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
