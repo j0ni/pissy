@@ -29,22 +29,23 @@ func (key *EncryptionKey) Load(dir, fileName string) error {
 	return dec.Decode(key)
 }
 
-func (key EncryptionKey) Save(dir, fileName string) error {
+func (key *EncryptionKey) Save(dir, fileName string) error {
 	var buf bytes.Buffer
-	// its a copy
+	tmpKey := key.DecryptedKey
 	key.DecryptedKey = nil
 	enc := gob.NewEncoder(&buf)
 	if err := enc.Encode(key); err != nil {
 		return err
 	}
+	key.DecryptedKey = tmpKey
 	return saveFile(dir, fileName, buf)
 }
 
-func (key EncryptionKey) deriveKey(passphrase string, salt []byte) []byte {
-	return pbkdf2.Key([]byte(passphrase), salt, key.Iterations, 32, sha512.New)
+func (key *EncryptionKey) deriveKey(passphrase, salt []byte) []byte {
+	return pbkdf2.Key(passphrase, salt, key.Iterations, 32, sha512.New)
 }
 
-func (key *EncryptionKey) Decrypt(passphrase string) error {
+func (key *EncryptionKey) Decrypt(passphrase []byte) error {
 	dk := key.deriveKey(passphrase, key.Salt)
 	// not sure if it's ok to reuse this key
 	if !checkHMAC(key.EncryptedKey, key.EncryptedKeyHMAC, dk) {
@@ -55,7 +56,11 @@ func (key *EncryptionKey) Decrypt(passphrase string) error {
 	return err
 }
 
-func (key *EncryptionKey) Encrypt(passphrase string) error {
+func (key *EncryptionKey) Unlock(passphrase []byte) error {
+	return key.Decrypt(passphrase)
+}
+
+func (key *EncryptionKey) Encrypt(passphrase []byte) error {
 	key.Salt = secureRandomBytes(SaltSize)
 	dk := key.deriveKey(passphrase, key.Salt)
 	ciphertext, err := encrypt(key.DecryptedKey, dk)
@@ -68,6 +73,23 @@ func (key *EncryptionKey) Encrypt(passphrase string) error {
 	return nil
 }
 
+func (key *EncryptionKey) Lock(passphrase []byte) error {
+	err := key.Encrypt(passphrase)
+	if err != nil {
+		return err
+	}
+	key.DecryptedKey = nil
+	return nil
+}
+
 func (key *EncryptionKey) GenerateKey() {
 	key.DecryptedKey = secureRandomBytes(AESKeySize)
+}
+
+func NewKey() *EncryptionKey {
+	key := &EncryptionKey{
+		Iterations: 10000,
+	}
+	key.GenerateKey()
+	return key
 }

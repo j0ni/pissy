@@ -11,6 +11,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const EncryptionKeyFile = "encryptionKey.gob"
+
 type Database struct {
 	Path    string
 	Records []Record
@@ -42,7 +44,7 @@ func (db *Database) Load() error {
 	if err != nil {
 		return err
 	}
-	recRe, err := regexp.Compile(".*\\pissy")
+	recRe, err := regexp.Compile(".*\\.pissy")
 	if err != nil {
 		return err
 	}

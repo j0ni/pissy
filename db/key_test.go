@@ -20,7 +20,7 @@ func TestKeyGeneration(t *testing.T) {
 func TestKeyEncryption(t *testing.T) {
 	assert := assert.New(t)
 	var key EncryptionKey
-	passphrase := "humanity is doomed"
+	passphrase := []byte("humanity is doomed")
 
 	assert.Nil(key.EncryptedKey)
 	assert.Nil(key.DecryptedKey)

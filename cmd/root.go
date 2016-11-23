@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"mig.ninja/mig/pgp/pinentry"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -45,14 +47,24 @@ func initConfig() {
 	}
 
 	viper.SetDefault("path", fmt.Sprintf("%s/%s", os.Getenv("HOME"), "Dropbox/Apps/Pissy"))
+	viper.BindPFlag("path", RootCmd.Flags().Lookup("path"))
+
 	viper.SetConfigName(".pissy") // name of config file (without extension)
 	viper.AddConfigPath("$HOME")  // adding home directory as first search path
 	viper.SetEnvPrefix("pissy")   // add prefix for env vars
 	viper.AutomaticEnv()          // read in environment variables that match
-	viper.BindPFlag("path", RootCmd.Flags().Lookup("path"))
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func acquirePassphrase() ([]byte, error) {
+	request := &pinentry.Request{
+		Desc:   "Passphrase dialog for Pissy",
+		Prompt: "Enter passphrase",
+	}
+	passphrase, err := request.GetPIN()
+	return []byte(passphrase), err
 }
