@@ -35,7 +35,7 @@ func (db *Database) Save() (uuids []uuid.UUID, errs []error) {
 }
 
 func (db *Database) Load() error {
-	if found, err := exists(db.Path); err != nil {
+	if found, err := Exists(db.Path); err != nil {
 		return err
 	} else if !found {
 		return errors.New(fmt.Sprintf("path does not exist: %s", db.Path))
@@ -69,7 +69,7 @@ func (db *Database) Load() error {
 
 func loadFile(dir, fileName string) (*bytes.Buffer, error) {
 	fullPath := fmt.Sprintf("%s/%s", dir, fileName)
-	if found, err := exists(fullPath); err != nil {
+	if found, err := Exists(fullPath); err != nil {
 		return nil, err
 	} else if !found {
 		return nil, errors.New(fmt.Sprintf("file not found: %s", fullPath))
@@ -88,7 +88,7 @@ func saveFile(dir, fileName string, buf bytes.Buffer) error {
 	return ioutil.WriteFile(fullPath, buf.Bytes(), 0600)
 }
 
-func exists(path string) (bool, error) {
+func Exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil

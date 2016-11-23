@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -22,8 +23,29 @@ func init() {
 	RootCmd.AddCommand(initCmd)
 }
 
+func dbExists(path, configFile string) (found bool, err error) {
+	if found, err = db.Exists(path); err != nil {
+		return
+	} else if found {
+		encryptedKeyFile := fmt.Sprintf("%s/%s", path, db.EncryptionKeyFile)
+		if found, err = db.Exists(encryptedKeyFile); err != nil || found {
+			return
+		}
+	}
+
+	found, err = db.Exists(configFile)
+	return
+}
+
 func initDb(cmd *cobra.Command, args []string) error {
 	path := viper.GetString("path")
+	configFile := fmt.Sprintf("%s/%s", os.Getenv("HOME"), ".pissy.yaml")
+
+	if ok, err := dbExists(path, configFile); ok {
+		return errors.New("Looks like there's already a DB")
+	} else if err != nil {
+		return err
+	}
 
 	err := os.MkdirAll(path, 0700)
 	if err != nil {
@@ -48,6 +70,5 @@ func initDb(cmd *cobra.Command, args []string) error {
 	}
 
 	configStr := []byte(fmt.Sprintf("path: \"%s\"\n", path))
-	configFile := fmt.Sprintf("%s/%s", os.Getenv("HOME"), ".pissy.yaml")
 	return ioutil.WriteFile(configFile, configStr, 0600)
 }

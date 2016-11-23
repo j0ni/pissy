@@ -30,7 +30,7 @@ func (r Record) String() string {
 
 func (r Record) Save(dir string) error {
 	fileName := fmt.Sprintf("%s/%s.pissy", dir, r.Uuid)
-	if exists, err := exists(fileName); err != nil {
+	if exists, err := Exists(fileName); err != nil {
 		return err
 	} else if !exists || r.Dirty {
 		var buf bytes.Buffer
