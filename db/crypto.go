@@ -30,11 +30,12 @@ func generateHMAC(value, key []byte) []byte {
 func pad(text []byte) []byte {
 	buf := bytes.NewBuffer(text)
 	rem := len(text) % aes.BlockSize
-	if rem == 0 {
-		rem = aes.BlockSize
+	pad := aes.BlockSize - rem
+	if pad == 0 {
+		pad = aes.BlockSize
 	}
-	for i := 0; i < rem; i++ {
-		err := buf.WriteByte(byte(rem))
+	for i := 0; i < pad; i++ {
+		err := buf.WriteByte(byte(pad))
 		if err != nil {
 			panic(err)
 		}
