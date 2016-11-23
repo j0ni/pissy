@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -63,9 +64,21 @@ func NewRecord() Record {
 }
 
 func (r *Record) Decrypt(key []byte) error {
-	return nil
+	if badHMAC(r.EncryptedValue, r.EncryptedValueHMAC, key) {
+		return errors.New("HMAC validation failed")
+	}
+	plaintext, err := decrypt(r.EncryptedValue, key)
+	r.DecryptedValue = plaintext
+	return err
 }
 
-func (r *Record) Encrypt(record *Record) error {
+func (r *Record) Encrypt(key []byte) error {
+	ciphertext, err := encrypt(r.DecryptedValue, key)
+	if err != nil {
+		return err
+	}
+	r.EncryptedValue = ciphertext
+	// key reuse again - ok, or not ok?
+	r.EncryptedValueHMAC = generateHMAC(r.EncryptedValue, key)
 	return nil
 }

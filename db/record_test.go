@@ -25,3 +25,33 @@ func TestSerialization(t *testing.T) {
 
 	assert.Nil(os.Remove(fmt.Sprintf("/tmp/%s.pissy", record.Uuid.String())))
 }
+
+func TestRoundTripRecordEncryption(t *testing.T) {
+	assert := assert.New(t)
+	plaintext := []byte("u mad bruh")
+
+	var key EncryptionKey
+	key.GenerateKey()
+	assert.NotNil(key.DecryptedKey)
+
+	record := NewRecord()
+	record.DecryptedValue = plaintext
+
+	assert.Nil(record.EncryptedValue)
+	assert.Nil(record.EncryptedValueHMAC)
+
+	err := record.Encrypt(key.DecryptedKey)
+
+	assert.Nil(err)
+	assert.NotNil(record.EncryptedValue)
+	assert.NotNil(record.EncryptedValueHMAC)
+
+	record.DecryptedValue = nil
+	err = record.Decrypt(key.DecryptedKey)
+
+	assert.Nil(err)
+	assert.NotNil(record.DecryptedValue)
+	assert.NotNil(record.EncryptedValue)
+	assert.NotNil(record.EncryptedValueHMAC)
+	assert.Equal(plaintext, record.DecryptedValue)
+}

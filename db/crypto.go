@@ -21,6 +21,10 @@ func checkHMAC(value, expected, key []byte) bool {
 	return hmac.Equal(expected, mac.Sum(nil))
 }
 
+func badHMAC(value, expected, key []byte) bool {
+	return !checkHMAC(value, expected, key)
+}
+
 func generateHMAC(value, key []byte) []byte {
 	mac := hmac.New(sha512.New, key)
 	mac.Write(value)
@@ -68,7 +72,7 @@ func secureRandomBytes(size int) []byte {
 	return bs
 }
 
-func decrypt(key, ciphertext []byte) ([]byte, error) {
+func decrypt(ciphertext, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -77,23 +81,29 @@ func decrypt(key, ciphertext []byte) ([]byte, error) {
 		return nil, errors.New(fmt.Sprintf("ciphertext is too short (%d bytes, %d required)",
 			len(ciphertext), aes.BlockSize))
 	}
-	iv := ciphertext[:aes.BlockSize]
-	ciphertext = ciphertext[aes.BlockSize:]
+	iv := ciphertext[:IVSize]
+	ciphertext = ciphertext[IVSize:]
 	plaintext := make([]byte, len(ciphertext))
 	mode := cipher.NewCBCDecrypter(block, iv)
 	mode.CryptBlocks(plaintext, ciphertext)
 	return stripPadding(plaintext)
 }
 
-func encrypt(key, plaintext []byte) ([]byte, error) {
+func encrypt(plaintext, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
-	plaintext = pad(plaintext)
-	ciphertext := make([]byte, len(plaintext))
+	padded := pad(plaintext)
+	if len(padded)%aes.BlockSize != 0 {
+		return nil, errors.New(fmt.Sprintf(
+			"plaintext length must be a multiple of block size - padded: %d, original: %d",
+			len(padded),
+			len(plaintext)))
+	}
+	ciphertext := make([]byte, len(padded))
 	iv := secureRandomBytes(IVSize)
 	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext, plaintext)
+	mode.CryptBlocks(ciphertext, padded)
 	return append(iv, ciphertext...), nil
 }

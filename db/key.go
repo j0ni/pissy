@@ -44,21 +44,21 @@ func (key EncryptionKey) deriveKey(passphrase string, salt []byte) []byte {
 	return pbkdf2.Key([]byte(passphrase), salt, key.Iterations, 32, sha512.New)
 }
 
-func (key *EncryptionKey) DecryptKey(passphrase string) error {
+func (key *EncryptionKey) Decrypt(passphrase string) error {
 	dk := key.deriveKey(passphrase, key.Salt)
 	// not sure if it's ok to reuse this key
 	if !checkHMAC(key.EncryptedKey, key.EncryptedKeyHMAC, dk) {
 		return errors.New("HMAC validation failed")
 	}
-	plaintext, err := decrypt(dk, key.EncryptedKey)
+	plaintext, err := decrypt(key.EncryptedKey, dk)
 	key.DecryptedKey = plaintext
 	return err
 }
 
-func (key *EncryptionKey) EncryptKey(passphrase string) error {
+func (key *EncryptionKey) Encrypt(passphrase string) error {
 	key.Salt = secureRandomBytes(SaltSize)
 	dk := key.deriveKey(passphrase, key.Salt)
-	ciphertext, err := encrypt(dk, key.DecryptedKey)
+	ciphertext, err := encrypt(key.DecryptedKey, dk)
 	if err != nil {
 		return err
 	}
