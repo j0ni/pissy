@@ -36,6 +36,15 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(
 		&cfgFile, "config", "", "config file (default is $HOME/.pissy.yaml)")
 	RootCmd.PersistentFlags().StringP("path", "p", "", "path to keychain")
+
+	RootCmd.PersistentFlags().StringP("name", "n", "", "Title of the entry")
+	RootCmd.PersistentFlags().String("notes", "", "Additional notes")
+	RootCmd.PersistentFlags().StringP("type", "t", "", "The entry category")
+	RootCmd.PersistentFlags().StringP("uuid", "u", "", "UUID of the record to dump")
+	RootCmd.PersistentFlags().BoolP(
+		"update-secret", "s", false, "Update the secret (invokes UI)")
+
+	viper.BindPFlags(RootCmd.PersistentFlags())
 }
 
 func initConfig() {

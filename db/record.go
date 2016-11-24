@@ -76,3 +76,19 @@ func (r *Record) Encrypt(key []byte) error {
 	r.EncryptedValueHMAC = generateHMAC(r.EncryptedValue, key)
 	return nil
 }
+
+func (r *Record) UpdateFields(name, category, notes string, secret, key []byte) {
+	if len(name) != 0 {
+		r.Title = name
+	}
+	if len(category) != 0 {
+		r.TypeName = category
+	}
+	if len(notes) != 0 {
+		r.Notes = notes
+	}
+	if len(secret) != 0 {
+		r.DecryptedValue = secret
+		r.Encrypt(key)
+	}
+}

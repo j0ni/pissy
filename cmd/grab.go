@@ -66,7 +66,6 @@ func findRecord(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(grabCmd)
 
-	grabCmd.Flags().StringP("uuid", "u", "", "UUID of the record to dump")
 	grabCmd.Flags().BoolP("clipboard", "y", false, "Send secret to clipboard")
 
 	viper.BindPFlags(grabCmd.Flags())

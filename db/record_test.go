@@ -15,7 +15,6 @@ func TestSerialization(t *testing.T) {
 	record.DecryptedValue = []byte("yo hello there")
 	record.Notes = "some notes to test"
 	record.Title = "hokey kokey"
-	// record.Encrypt([]byte("bingo"))
 	record.Save("/tmp")
 
 	var otherRecord Record
