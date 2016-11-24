@@ -21,7 +21,6 @@ type Record struct {
 	DecryptedValue     []byte
 	EncryptedValueHMAC []byte
 	TypeName           string
-	Dirty              bool
 }
 
 func (r Record) String() string {
@@ -30,21 +29,17 @@ func (r Record) String() string {
 
 func (r Record) Save(dir string) error {
 	fileName := fmt.Sprintf("%s/%s.pissy", dir, r.Uuid)
-	if exists, err := Exists(fileName); err != nil {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	r.DecryptedValue = nil
+	if err := enc.Encode(r); err != nil {
 		return err
-	} else if !exists || r.Dirty {
-		var buf bytes.Buffer
-		enc := gob.NewEncoder(&buf)
-		if err := enc.Encode(r); err != nil {
-			return err
-		}
-		return ioutil.WriteFile(fileName, buf.Bytes(), 0600)
 	}
-	return nil
+	return ioutil.WriteFile(fileName, buf.Bytes(), 0600)
 }
 
 func (r *Record) Load(dir string, fileName string) error {
-	buf, err := loadFile(dir, fmt.Sprintf("%s.pissy", fileName))
+	buf, err := loadFile(dir, fileName)
 	if err != nil {
 		return err
 	}
@@ -59,7 +54,6 @@ func NewRecord() Record {
 		Uuid:      uuid,
 		CreatedAt: now,
 		UpdatedAt: now,
-		Dirty:     true,
 	}
 }
 
