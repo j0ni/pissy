@@ -77,18 +77,18 @@ func (r *Record) Encrypt(key []byte) error {
 	return nil
 }
 
-func (r *Record) UpdateFields(name, category, notes string, secret, key []byte) {
-	if len(name) != 0 {
-		r.Title = name
+func (r *Record) UpdateFields(key []byte, rec *Record) {
+	if len(rec.Title) != 0 {
+		r.Title = rec.Title
 	}
-	if len(category) != 0 {
-		r.TypeName = category
+	if len(rec.TypeName) != 0 {
+		r.TypeName = rec.TypeName
 	}
-	if len(notes) != 0 {
-		r.Notes = notes
+	if len(rec.Notes) != 0 {
+		r.Notes = rec.Notes
 	}
-	if len(secret) != 0 {
-		r.DecryptedValue = secret
+	if len(rec.DecryptedValue) != 0 {
+		r.DecryptedValue = rec.DecryptedValue
 		r.Encrypt(key)
 	}
 }

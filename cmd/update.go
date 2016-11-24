@@ -51,9 +51,13 @@ func updateRecord(cmd *cobra.Command, args []string) (err error) {
 		keyMaterial = key.DecryptedKey
 	}
 	// update the record
-	rec.UpdateFields(name, category, notes, secret, keyMaterial)
-	rec.Save(path)
-	return nil
+	rec.UpdateFields(keyMaterial, &db.Record{
+		Title:          name,
+		TypeName:       category,
+		Notes:          notes,
+		DecryptedValue: secret,
+	})
+	return rec.Save(path)
 }
 
 func init() {
