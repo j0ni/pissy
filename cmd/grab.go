@@ -10,10 +10,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-// grabCmd represents the grab command
 var grabCmd = &cobra.Command{
 	Use:   "grab",
-	Short: "Retrieve a single password.",
+	Short: "Retrieve a single password",
 	Long:  `Retrieve a single password using a UUID.`,
 	RunE:  findRecord,
 }
@@ -65,8 +64,6 @@ func findRecord(cmd *cobra.Command, args []string) error {
 
 func init() {
 	RootCmd.AddCommand(grabCmd)
-
 	grabCmd.Flags().BoolP("clipboard", "y", false, "Send secret to clipboard")
-
 	viper.BindPFlags(grabCmd.Flags())
 }
