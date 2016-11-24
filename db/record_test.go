@@ -12,18 +12,20 @@ func TestSerialization(t *testing.T) {
 	assert := assert.New(t)
 
 	record := NewRecord()
-	record.EncryptedValue = []byte("yo hello there")
+	record.DecryptedValue = []byte("yo hello there")
 	record.Notes = "some notes to test"
 	record.Title = "hokey kokey"
+	// record.Encrypt([]byte("bingo"))
 	record.Save("/tmp")
 
 	var otherRecord Record
-	err := otherRecord.Load("/tmp", record.Uuid.String())
+	fileName := fmt.Sprintf("%s.pissy", record.Uuid.String())
+	err := otherRecord.Load("/tmp", fileName)
 	assert.Nil(err, "LoadRecord returned an error")
 
 	assert.Equal(record.String(), otherRecord.String(), "records were not equal")
 
-	assert.Nil(os.Remove(fmt.Sprintf("/tmp/%s.pissy", record.Uuid.String())))
+	assert.Nil(os.Remove(fmt.Sprintf("/tmp/%s", fileName)))
 }
 
 func TestRoundTripRecordEncryption(t *testing.T) {

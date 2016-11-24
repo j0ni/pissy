@@ -23,7 +23,7 @@ func New(path string) *Database {
 	return &Database{Path: path}
 }
 
-func (db Database) Find(uuidS string) (rec Record, err error) {
+func (db *Database) Find(uuidS string) (rec Record, err error) {
 	id, err := uuid.FromString(uuidS)
 	if err != nil {
 		return
