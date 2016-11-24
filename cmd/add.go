@@ -75,10 +75,4 @@ func addRecord(cmd *cobra.Command, args []string) (err error) {
 
 func init() {
 	RootCmd.AddCommand(addCmd)
-
-	addCmd.Flags().StringP("name", "n", "", "Title of the entry")
-	addCmd.Flags().String("notes", "", "Additional notes")
-	addCmd.Flags().StringP("type", "t", "", "The entry category")
-
-	viper.BindPFlags(addCmd.Flags())
 }

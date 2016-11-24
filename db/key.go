@@ -42,7 +42,7 @@ func (key *EncryptionKey) Save(dir, fileName string) error {
 }
 
 func (key *EncryptionKey) deriveKey(passphrase, salt []byte) []byte {
-	return pbkdf2.Key(passphrase, salt, key.Iterations, 32, sha512.New)
+	return pbkdf2.Key(passphrase, salt, key.Iterations, AESKeySize, sha512.New)
 }
 
 func (key *EncryptionKey) Decrypt(passphrase []byte) (err error) {

@@ -41,8 +41,6 @@ func init() {
 	RootCmd.PersistentFlags().String("notes", "", "Additional notes")
 	RootCmd.PersistentFlags().StringP("type", "t", "", "The entry category")
 	RootCmd.PersistentFlags().StringP("uuid", "u", "", "UUID of the record to dump")
-	RootCmd.PersistentFlags().BoolP(
-		"update-secret", "s", false, "Update the secret (invokes UI)")
 
 	viper.BindPFlags(RootCmd.PersistentFlags())
 }

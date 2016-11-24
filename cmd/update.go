@@ -62,4 +62,6 @@ func updateRecord(cmd *cobra.Command, args []string) (err error) {
 
 func init() {
 	RootCmd.AddCommand(updateCmd)
+	updateCmd.Flags().BoolP("update-secret", "s", false, "Update the secret (invokes UI)")
+	viper.BindPFlags(updateCmd.Flags())
 }

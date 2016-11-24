@@ -16,7 +16,7 @@ const EncryptionKeyFile = "encryptionKey.gob"
 type Database struct {
 	Path    string
 	Records []Record
-	Key     EncryptionKey
+	Key     *EncryptionKey
 }
 
 func New(path string) *Database {
@@ -35,6 +35,26 @@ func (db *Database) Find(uuidS string) (rec Record, err error) {
 	}
 	err = errors.New("UUID did not match a record")
 	return
+}
+
+func (oldDb *Database) Filter(reString string) (*Database, error) {
+	re, err := regexp.Compile(reString)
+	if err != nil {
+		return nil, err
+	}
+	newDb := oldDb.PartialClone()
+	for _, rec := range oldDb.Records {
+		if re.MatchString(rec.Title) {
+			newDb.Records = append(newDb.Records, rec)
+		}
+	}
+	return newDb, nil
+}
+
+func (db *Database) PartialClone() *Database {
+	newDb := New(db.Path)
+	newDb.Key = db.Key
+	return newDb
 }
 
 func (db *Database) Save() (uuids []uuid.UUID, errs []error) {
