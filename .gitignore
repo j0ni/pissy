@@ -27,7 +27,7 @@ _testmain.go
 *.out
 
 # external packages folder
-vendor/
+vendor/*/
 
 # the compiled program
 pissy
