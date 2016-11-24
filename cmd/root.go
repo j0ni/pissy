@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"mig.ninja/mig/pgp/pinentry"
 
+	"github.com/j0ni/pissy/db"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -62,4 +64,34 @@ func acquirePassphrase() ([]byte, error) {
 	}
 	passphrase, err := request.GetPIN()
 	return []byte(passphrase), err
+}
+
+func parseCommonFieldsUpdate() (name, category, notes string) {
+	name = viper.GetString("name")
+	category = viper.GetString("type")
+	notes = viper.GetString("notes")
+	return
+}
+
+func parseCommonFieldsCreate() (name, category, notes string, err error) {
+	name, category, notes = parseCommonFieldsUpdate()
+	if len(name) == 0 {
+		err = errors.New("name is a required argument")
+		return
+	}
+	if len(category) == 0 {
+		err = errors.New("type is a required argument")
+	}
+	return
+}
+
+func unlockKey(passphrase []byte) (key *db.EncryptionKey, err error) {
+	path := viper.GetString("path")
+	key = &db.EncryptionKey{}
+	err = key.Load(path, db.EncryptionKeyFile)
+	if err != nil {
+		return
+	}
+	err = key.Unlock(passphrase)
+	return
 }

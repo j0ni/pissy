@@ -17,21 +17,6 @@ var addCmd = &cobra.Command{
 	RunE:  addRecord,
 }
 
-func parseCommandLine() (name, category, notes string, err error) {
-	name = viper.GetString("name")
-	category = viper.GetString("type")
-	if len(name) == 0 {
-		err = errors.New("name is a required argument")
-		return
-	}
-	if len(category) == 0 {
-		err = errors.New("type is a required argument")
-		return
-	}
-	notes = viper.GetString("notes")
-	return
-}
-
 func readSecret() (secret []byte, err error) {
 	secret, err = gopass.GetPasswd()
 	if err != nil {
@@ -63,20 +48,9 @@ func createRecord(name, category, notes string, secret, key []byte) error {
 	return record.Save(path)
 }
 
-func unlockKey(passphrase []byte) (key *db.EncryptionKey, err error) {
-	path := viper.GetString("path")
-	key = &db.EncryptionKey{}
-	err = key.Load(path, db.EncryptionKeyFile)
-	if err != nil {
-		return
-	}
-	err = key.Unlock(passphrase)
-	return
-}
-
 func addRecord(cmd *cobra.Command, args []string) (err error) {
 	// command line
-	name, category, notes, err := parseCommandLine()
+	name, category, notes, err := parseCommonFieldsCreate()
 	if err != nil {
 		return
 	}

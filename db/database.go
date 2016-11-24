@@ -23,6 +23,20 @@ func New(path string) *Database {
 	return &Database{Path: path}
 }
 
+func (db Database) Find(uuidS string) (rec Record, err error) {
+	id, err := uuid.FromString(uuidS)
+	if err != nil {
+		return
+	}
+	for _, record := range db.Records {
+		if record.Uuid == id {
+			return record, nil
+		}
+	}
+	err = errors.New("UUID did not match a record")
+	return
+}
+
 func (db *Database) Save() (uuids []uuid.UUID, errs []error) {
 	for _, record := range db.Records {
 		if err := record.Save(db.Path); err != nil {
@@ -97,9 +111,4 @@ func Exists(path string) (bool, error) {
 		return false, nil
 	}
 	return true, err
-}
-
-func crash(err error) {
-	// log.Fatal(err)
-	panic(err)
 }
